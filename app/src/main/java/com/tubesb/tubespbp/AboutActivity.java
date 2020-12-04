@@ -38,6 +38,7 @@ public class AboutActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view_mahasiswa);
         adapter = new RecyclerViewAdapter(AboutActivity.this, ListMahasiswa);
         recyclerView.setAdapter(adapter);
+
     }
 
     @Override
@@ -51,33 +52,14 @@ public class AboutActivity extends AppCompatActivity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()==R.id.menu_dashboard){
-            startActivity(new Intent(this, DashboardActivity.class));
-            finish();
+            //Pass Email dari Login
+            String email = getIntent().getStringExtra("email");
+            onBackPressed();
+            /*Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+            intent.putExtra("email", email);*/
         }
 
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setMessage("Apa Kamu yakin untuk Keluar?");
-        builder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //if user pressed "Ya", then he is allowed to exit from application
-                finish();
-            }
-        });
-        builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //if user select "Tidak", just cancel this dialog and continue with app
-                dialog.cancel();
-            }
-        });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
 }

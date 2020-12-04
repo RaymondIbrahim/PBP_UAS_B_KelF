@@ -14,24 +14,17 @@ public interface ApiInterface {
     @GET("user")
     Call<com.tubesb.tubespbp.api.UserResponse> getAllUser(@Query("data") String data);
 
-    @GET("user/{id}")
-    Call<com.tubesb.tubespbp.api.UserResponse> getUserById(@Path("id") String id,
-                                                          @Query("data") String data);
+    @GET("user/{email}")
+    Call<UserResponse> getUserByEmail(@Path("email") String email,
+                                   @Query("data") String data);
 
-    @POST("login")
-    @FormUrlEncoded
-    Call<com.tubesb.tubespbp.api.UserResponse> loginRequest(@Field("nim") String nim,
-                                                           @Field("password") String password);
 
-    @POST("user/{id}")
+    @POST("userupdate/{id}")
     @FormUrlEncoded
-    Call<com.tubesb.tubespbp.api.UserResponse> updateUser(@Path("id") String id,
-                                                                        @Query("data") String data,
-                                                                        @Field("email") String email,
-                                                                        @Field("password") String password,
-                                                                        @Field("name") String nama,
-                                                                        @Field("alamat") String alamat,
-                                                                        @Field("noTelp") String noTelp);
+    Call<UserResponse> updateUser(@Path("id") String id,
+                                  @Field("name") String nama,
+                                  @Field("alamat") String alamat,
+                                  @Field("noTelp") String noTelp);
 
     @POST("userdelete{id}")
     Call<com.tubesb.tubespbp.api.UserResponse> deleteUser(@Path("id") String id);
@@ -43,4 +36,9 @@ public interface ApiInterface {
                                   @Field("name") String nama,
                                   @Field("alamat") String alamat,
                                   @Field("noTelp") String noTelp);
+
+    @POST("login")
+    @FormUrlEncoded
+    Call<UserResponse> loginUser(@Field("email") String email,
+                                 @Field("password") String password);
 }

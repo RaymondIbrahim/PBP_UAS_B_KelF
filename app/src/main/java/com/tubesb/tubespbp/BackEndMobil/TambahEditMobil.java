@@ -48,14 +48,12 @@ import static com.android.volley.Request.Method.POST;
 
 public class TambahEditMobil extends Fragment {
 
-    private TextInputEditText txtNama, txtTransmisi, txtHarga, txtSeat;
-    private ImageView ivGambar;
-    private Button btnSimpan, btnBatal, btnUnggah;
-    private String status, selected, encoder;
+    private TextInputEditText txtNama, txtTransmisi, txtHarga, txtSeat, txtGambar;
+    private Button btnSimpan, btnBatal;
+    private String status, selected;
     private int id;
     private Mobil mobil;
     private View view;
-    private Bitmap bitmap;
     private Uri selectedImage = null;
     private static final int PERMISSION_CODE = 1000;
 
@@ -83,6 +81,8 @@ public class TambahEditMobil extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        if(menu.findItem(R.id.btnBack) != null)
+            menu.findItem(R.id.btnBack).setVisible(false);
         if(menu.findItem(R.id.btnSearch) != null)
             menu.findItem(R.id.btnSearch).setVisible(false);
         if(menu.findItem(R.id.btnAdd) != null)
@@ -97,8 +97,7 @@ public class TambahEditMobil extends Fragment {
         txtSeat             = view.findViewById(R.id.txtSeat);
         btnSimpan           = view.findViewById(R.id.btnSimpan);
         btnBatal            = view.findViewById(R.id.btnBatal);
-        btnUnggah           = view.findViewById(R.id.btnUnggah);
-        ivGambar            = view.findViewById(R.id.ivGambar);
+        txtGambar            = view.findViewById(R.id.txtGambar);
 
         status = getArguments().getString("status");
         if(status.equals("edit"))
@@ -108,76 +107,11 @@ public class TambahEditMobil extends Fragment {
             txtTransmisi.setText(mobil.getJenis_transmisi());
             txtHarga.setText(mobil.getHarga());
             txtSeat.setText(mobil.getJumlah_seat());
-            /*
-            Glide.with(view.getContext())
-                    .load(MobilAPI.URL_IMAGE +mobil.getImageURL())
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .into(ivGambar);*/
+            txtGambar.setText(mobil.getImageURL());
         }
     }
 
     private void setAttribut() {
-        btnUnggah.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LayoutInflater layoutInflater = LayoutInflater.from(view.getContext());
-                View view = layoutInflater.inflate(R.layout.pilih_media, null);
-
-                final AlertDialog alertD = new AlertDialog.Builder(view.getContext()).create();
-
-                Button btnKamera = (Button) view.findViewById(R.id.btnKamera);
-                Button btnGaleri = (Button) view.findViewById(R.id.btnGaleri);
-
-                btnKamera.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        selected="kamera";
-                        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M)
-                        {
-                            if(getActivity().checkSelfPermission(Manifest.permission.CAMERA)==
-                                    PackageManager.PERMISSION_DENIED ||
-                                    getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)==
-                                            PackageManager.PERMISSION_DENIED){
-                                String[] permission = {Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                                requestPermissions(permission,PERMISSION_CODE);
-                            }
-                            else{
-                                openCamera();
-                            }
-                        }
-                        else{
-                            openCamera();
-                        }
-                        alertD.dismiss();
-                    }
-                });
-
-                btnGaleri.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        selected="galeri";
-                        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M)
-                        {
-                            if(getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)==
-                                    PackageManager.PERMISSION_DENIED){
-                                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                                requestPermissions(permission,PERMISSION_CODE);
-                            }
-                            else{
-                                openGallery();
-                            }
-                        }
-                        else{
-                            openGallery();
-                        }
-                        alertD.dismiss();
-                    }
-                });
-
-                alertD.setView(view);
-                alertD.show();
-            }
-        });
-
         btnSimpan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,16 +119,16 @@ public class TambahEditMobil extends Fragment {
                 String transmisi = txtTransmisi.getText().toString();
                 String harga = txtHarga.getText().toString();
                 String seat = txtSeat.getText().toString();
-
+                String gambar = txtGambar.getText().toString();
 
                 if(nama.isEmpty() || transmisi.isEmpty() || harga.isEmpty() || seat.isEmpty())
                     Toast.makeText(getContext(), "Data Tidak Boleh Kosong !", Toast.LENGTH_SHORT).show();
                 else{
-                    mobil = new Mobil(nama, transmisi, harga, seat);
+                    mobil = new Mobil(nama, transmisi, harga, seat, gambar);
                     if(status.equals("tambah"))
-                        tambahMobil(nama, transmisi, harga, seat);
+                        tambahMobil(nama, transmisi, harga, seat, gambar);
                     else
-                        editMobil(nama, transmisi, harga, seat);
+                        editMobil(nama, transmisi, harga, seat, gambar);
                 }
             }
         });
@@ -207,67 +141,6 @@ public class TambahEditMobil extends Fragment {
         });
     }
 
-    private void openGallery(){
-        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, 1);
-    }
-
-    private void openCamera() {
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent,2);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case PERMISSION_CODE:{
-                if(grantResults.length > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED){
-                    if(selected.equals("kamera"))
-                        openCamera();
-                    else
-                        openGallery();
-                }else{
-                    Toast.makeText(getContext() ,"Permision denied",Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == 1)
-        {
-            selectedImage = data.getData();
-            try {
-                InputStream inputStream = getActivity().getContentResolver().openInputStream(selectedImage);
-                bitmap = BitmapFactory.decodeStream(inputStream);
-            } catch (Exception e) {
-                Toast.makeText(view.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-            ivGambar.setImageBitmap(bitmap);
-            bitmap = getResizedBitmap(bitmap, 512);
-
-            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100,bao);
-            byte [] ba = bao.toByteArray();
-            encoder = Base64.encodeToString(ba, Base64.DEFAULT);
-        }
-        else if(resultCode == RESULT_OK && requestCode == 2)
-        {
-            Bundle extras = data.getExtras();
-            bitmap = (Bitmap) extras.get("data");
-            ivGambar.setImageBitmap(bitmap);
-            bitmap = getResizedBitmap(bitmap, 512);
-
-            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bao);
-            byte [] ba = bao.toByteArray();
-            encoder = Base64.encodeToString(ba, Base64.DEFAULT);
-        }
-    }
 
     public void loadFragment(Fragment fragment) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -302,7 +175,7 @@ public class TambahEditMobil extends Fragment {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
-    public void tambahMobil(final String nama, final String transmisi, final String harga, final String seat){
+    public void tambahMobil(final String nama, final String transmisi, final String harga, final String seat, final String gambar){
         //Tambahkan tambah mobil disini
         //Pendeklarasian queue
         RequestQueue queue = Volley.newRequestQueue(getContext());
@@ -353,8 +226,7 @@ public class TambahEditMobil extends Fragment {
                 params.put("jenis_transmisi", transmisi);
                 params.put("harga", harga);
                 params.put("jumlah_seat", seat);
-                if(encoder!=null)
-                    params.put("imageURL", encoder);
+                params.put("imageURL", gambar);
                 return params;
             }
         };
@@ -363,7 +235,7 @@ public class TambahEditMobil extends Fragment {
         queue.add(stringRequest);
     }
 
-    public void editMobil(final String nama, final String transmisi, final String harga, final String seat) {
+    public void editMobil(final String nama, final String transmisi, final String harga, final String seat, final String gambar) {
         //Tambahkan edit mobil disini
         RequestQueue queue = Volley.newRequestQueue(getContext());
 
@@ -413,8 +285,7 @@ public class TambahEditMobil extends Fragment {
                 params.put("jenis_transmisi", transmisi);
                 params.put("harga", harga);
                 params.put("jumlah_seat", seat);
-                if(encoder!=null)
-                    params.put("gambar", encoder);
+                params.put("imageURL", gambar);
                 return params;
 
             }

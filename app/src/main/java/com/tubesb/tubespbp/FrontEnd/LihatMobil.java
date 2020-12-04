@@ -1,8 +1,6 @@
 package com.tubesb.tubespbp.FrontEnd;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -13,11 +11,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +26,6 @@ import com.android.volley.toolbox.Volley;
 import com.tubesb.tubespbp.BackEndMobil.AdapterMobil;
 import com.tubesb.tubespbp.BackEndMobil.Mobil;
 import com.tubesb.tubespbp.BackEndMobil.MobilAPI;
-import com.tubesb.tubespbp.BackEndMobil.TambahEditMobil;
 import com.tubesb.tubespbp.DashboardActivity;
 import com.tubesb.tubespbp.LoginActivity;
 import com.tubesb.tubespbp.R;
@@ -55,6 +50,9 @@ public class LihatMobil extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_views_mobil, container, false);
 
+        Bundle bundle = this.getArguments();
+        String email = bundle.getString("email");
+        Toast.makeText(getActivity(), email, Toast.LENGTH_SHORT).show();
         loadDaftarMobil();
         return view;
     }
@@ -83,7 +81,11 @@ public class LihatMobil extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.menu_dashboard) {
+            Bundle bundle = this.getArguments();
+            String email = bundle.getString("email");
+            Toast.makeText(getActivity(), email, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getActivity(), DashboardActivity.class);
+            intent.putExtra("email", email);
             startActivity(intent);
         }
 

@@ -13,7 +13,7 @@ public class UserDAO {
     @SerializedName("password")
     private String password;
 
-    @SerializedName("nama")
+    @SerializedName("name")
     private String nama;
 
     @SerializedName("alamat")

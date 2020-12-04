@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -55,6 +54,7 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.android.volley.Request.Method.POST;
 
@@ -245,7 +245,19 @@ public class RegisterActivity extends AppCompatActivity {
                     Call<UserResponse> add = apiService.createUser(etEmail.getText().toString(), etPassword.getText().toString(),
                             etNama.getText().toString(), etAlamat.getText().toString(), etTelp.getText().toString() );
 
+                    add.enqueue(new Callback<UserResponse>() {
+                        @Override
+                        public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                            Toast.makeText(RegisterActivity.this, "Berhasil menambah user", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                        }
 
+                        @Override
+                        public void onFailure(Call<UserResponse> call, Throwable t) {
+                            Toast.makeText(RegisterActivity.this, "Gagal menambah user", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                        }
+                    });
 
                     firebaseAuth.signOut();
                     onBackPressed();

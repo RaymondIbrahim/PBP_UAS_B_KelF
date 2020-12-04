@@ -6,8 +6,12 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class UserResponse {
+import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.POST;
 
+public class UserResponse {
     @SerializedName("data")
     @Expose
     private List<UserDAO> users = null;

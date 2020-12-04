@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +27,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.tubesb.tubespbp.R;
 
 import org.json.JSONException;
@@ -71,11 +73,9 @@ public class AdapterMobil extends RecyclerView.Adapter<AdapterMobil.adapterMobil
         holder.twTransmisi.setText(mobil.getJenis_transmisi());
         holder.twHarga.setText(mobil.getHarga());
         holder.twSeat.setText(mobil.getJumlah_seat());
-        /*Glide.with(context)
-                .load(MobilAPI.URL_IMAGE+mobil.getImageURL())
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(holder.ivImg);*/
+        Glide.with(holder.ivImg.getContext())
+                .load(mobil.getImageURL())
+                .into(holder.ivImg);
 
 
         holder.ivEdit.setOnClickListener(new View.OnClickListener() {
@@ -121,7 +121,7 @@ public class AdapterMobil extends RecyclerView.Adapter<AdapterMobil.adapterMobil
 
     public class adapterMobilViewHolder extends RecyclerView.ViewHolder {
         private TextView twNama, twTransmisi, twHarga, ivEdit, ivHapus, twSeat;
-        private ImageView ivImg;
+        private ImageButton ivImg;
         private CardView cardBuku;
 
         public adapterMobilViewHolder(@NonNull View itemView) {
@@ -130,7 +130,7 @@ public class AdapterMobil extends RecyclerView.Adapter<AdapterMobil.adapterMobil
             twTransmisi = itemView.findViewById(R.id.tvTransmisi);
             twHarga = itemView.findViewById(R.id.tvHarga);
             twSeat = itemView.findViewById(R.id.tvSeat);
-            ivImg = itemView.findViewById(R.id.ivFotoProfil);
+            ivImg = itemView.findViewById(R.id.ivImg);
             ivEdit          = (TextView) itemView.findViewById(R.id.ivEdit);
             ivHapus         = (TextView) itemView.findViewById(R.id.ivHapus);
             cardBuku        = itemView.findViewById(R.id.cardBuku);

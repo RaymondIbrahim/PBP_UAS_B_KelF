@@ -10,20 +10,21 @@ public class Mobil implements Serializable {
         return jumlah_seat;
     }
 
-    public Mobil (int id, String nama_mobil, String jenis_transmisi, String harga, String gambar, String jumlah_seat) {
+    public Mobil (int id, String nama_mobil, String jenis_transmisi, String harga, String jumlah_seat, String gambar) {
         this.id = id;
         this.nama_mobil = nama_mobil;
         this.jenis_transmisi = jenis_transmisi;
         this.harga = harga;
-        this.imageURL = gambar;
         this.jumlah_seat = jumlah_seat;
+        this.imageURL = gambar;
     }
 
-    public Mobil (String nama_mobil, String jenis_transmisi, String harga, String jumlah_seat) {
+    public Mobil (String nama_mobil, String jenis_transmisi, String harga, String jumlah_seat, String gambar) {
         this.nama_mobil = nama_mobil;
         this.jenis_transmisi = jenis_transmisi;
         this.harga = harga;
         this.jumlah_seat = jumlah_seat;
+        this.imageURL = gambar;
     }
 
     public int getId() {
