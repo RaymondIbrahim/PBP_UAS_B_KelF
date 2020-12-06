@@ -145,7 +145,7 @@ public class EditUserActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
-                Toast.makeText(EditUserActivity.this, "Gagal menambah user", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditUserActivity.this, "Berhasil Update User", Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
             }
         });

@@ -1,8 +1,6 @@
-package com.tubesb.tubespbp.FrontEnd;
+package com.tubesb.tubespbp.BackEndSewa;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -13,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -28,13 +25,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.tubesb.tubespbp.BackEndMobil.AdapterLihatMobil;
-import com.tubesb.tubespbp.BackEndMobil.AdapterMobil;
-import com.tubesb.tubespbp.BackEndMobil.Mobil;
-import com.tubesb.tubespbp.BackEndMobil.MobilAPI;
-import com.tubesb.tubespbp.BackEndMobil.TambahEditMobil;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.tubesb.tubespbp.DashboardActivity;
-import com.tubesb.tubespbp.LoginActivity;
 import com.tubesb.tubespbp.R;
 
 import org.json.JSONArray;
@@ -46,21 +39,28 @@ import java.util.List;
 
 import static com.android.volley.Request.Method.GET;
 
-public class LihatMobil extends Fragment {
+public class ViewsSewa extends Fragment {
+
     private RecyclerView recyclerView;
-    private AdapterLihatMobil adapter;
-    private List<Mobil> listMobil;
+    private AdapterSewa adapter;
+    private List<Sewa> listSewa;
     private View view;
-    private ImageView twGambar;
+    public String email,id_Penyewa;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_views_mobil, container, false);
+        view = inflater.inflate(R.layout.fragment_views_sewa, container, false);
 
-        twGambar = view.findViewById(R.id.ivImg);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        id_Penyewa = firebaseUser.getUid();
 
-        loadDaftarMobil();
+        email = getArguments().getString("email");
+
+        loadDaftarSewa();
         return view;
     }
 
@@ -72,7 +72,7 @@ public class LihatMobil extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_lihat_mobil, menu);
+        inflater.inflate(R.menu.menu_bar_mobil, menu);
         super.onCreateOptionsMenu(menu, inflater);
 
         MenuItem searchItem = menu.findItem(R.id.btnSearch);
@@ -94,45 +94,56 @@ public class LihatMobil extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.btnBack).setVisible(true);
         menu.findItem(R.id.btnSearch).setVisible(true);
-        menu.findItem(R.id.menu_dashboard).setVisible(true);
+        menu.findItem(R.id.btnAdd).setVisible(true);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.menu_dashboard) {
-            Bundle bundle = this.getArguments();
-            String email = bundle.getString("email");
-            Toast.makeText(getActivity(), email, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), DashboardActivity.class);
+        if (id == R.id.btnAdd) {
+            Bundle data = new Bundle();
+            data.putString("status", "tambah");
+            data.putString("email", email);
+            TambahEditSewa tambahEditSewa = new TambahEditSewa();
+            tambahEditSewa.setArguments(data);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            fragmentManager .beginTransaction()
+                    .replace(R.id.frame_view_sewa, tambahEditSewa)
+                    .commit();
+        }
+        else if (id == R.id.btnBack) {
+            Intent intent = new Intent(getContext(), DashboardActivity.class);
             intent.putExtra("email", email);
             startActivity(intent);
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    public void loadDaftarMobil(){
+    public void loadDaftarSewa(){
         setAdapter();
-        getMobil();
+        getSewa();
     }
 
     public void setAdapter(){
-        getActivity().setTitle("Data Mobil");
-        /*Buat tampilan untuk adapter jika potrait menampilkan 2 data dalam 1 baris,
-        sedangakan untuk landscape 4 data dalam 1 baris*/
-        listMobil = new ArrayList<Mobil>();
+        getActivity().setTitle("Data Persewaan");
+
+        Bundle data = new Bundle();
+        data.putString("email", email);
+
+        listSewa = new ArrayList<Sewa>();
         recyclerView = view.findViewById(R.id.recycler_view);
-        adapter = new AdapterLihatMobil(view.getContext(), listMobil, new AdapterLihatMobil.deleteItemListener() {
+        adapter = new AdapterSewa(view.getContext(), listSewa, email,  new AdapterSewa.deleteItemListener() {
             @Override
             public void deleteItem(Boolean delete) {
                 if(delete){
-                    loadDaftarMobil();
+                    loadDaftarSewa();
                 }
             }
         });
+
 
         GridLayoutManager layoutManager = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
                 ? new GridLayoutManager(getContext(), 1)
@@ -143,17 +154,17 @@ public class LihatMobil extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    public void getMobil() {
+    public void getSewa() {
         RequestQueue queue = Volley.newRequestQueue(view.getContext());
 
         final ProgressDialog progressDialog;
         progressDialog = new ProgressDialog(view.getContext());
         progressDialog.setMessage("loading....");
-        progressDialog.setTitle("Menampilkan data mobil");
+        progressDialog.setTitle("Menampilkan data sewa");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
 
-        final JsonObjectRequest stringRequest = new JsonObjectRequest(GET, MobilAPI.URL_SELECT
+        final JsonObjectRequest stringRequest = new JsonObjectRequest(GET, SewaAPI.URL_SELECT
                 , null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -161,29 +172,32 @@ public class LihatMobil extends Fragment {
                 try {
                     JSONArray jsonArray = response.getJSONArray("data");
 
-                    if(!listMobil.isEmpty())
-                        listMobil.clear();
+                    if(!listSewa.isEmpty())
+                        listSewa.clear();
 
                     for (int i = 0; i < jsonArray.length(); i++) {
 
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                        Log.i("MOBILREQ", "json onResponse: " + jsonObject.toString());
+                        Log.i("SEWAREQ", "json onResponse: " + jsonObject.toString());
 
-                        int id                  = Integer.parseInt(jsonObject.optString("id"));
-                        String nama             = jsonObject.optString("nama_mobil");
-                        String transmisi        = jsonObject.optString("jenis_transmisi");
-                        String harga            = jsonObject.optString("harga");
-                        String gambar           = jsonObject.optString("imageURL");
-                        String seat             = jsonObject.optString("jumlah_seat");
+                        String idPenyewa          = jsonObject.optString("id_penyewa");
+                        if (id_Penyewa.equals(idPenyewa)) {
+                            int id = Integer.parseInt(jsonObject.optString("id"));
+                            String nama = jsonObject.optString("nama");
+                            String alamat = jsonObject.optString("alamat");
+                            String mobil = jsonObject.optString("pilihan_mobil");
+                            String tgl_sewa = jsonObject.optString("tgl_sewa");
+                            String lama_sewa = jsonObject.optString("lama_sewa");
 
-                        Mobil mobil = new Mobil(id, nama, transmisi, harga, seat, gambar);
-                        listMobil.add(mobil);
+                            Sewa sewa = new Sewa(id, nama, id_Penyewa, alamat, mobil, tgl_sewa, lama_sewa);
+                            listSewa.add(sewa);
+                        }
                     }
                     adapter.notifyDataSetChanged();
 
-                    Log.i("MOBILREQ", "try onResponse: " + response.optString("message"));
+                    Log.i("SEWAREQ", "try onResponse: " + response.optString("message"));
                 }catch (JSONException e){
-                    Log.i("MOBILREQ", "catch onResponse: " + e.getMessage());
+                    Log.i("SEWAREQ", "catch onResponse: " + e.getMessage());
                 }
                 Toast.makeText(view.getContext(), response.optString("message"),
                         Toast.LENGTH_SHORT).show();
@@ -199,4 +213,5 @@ public class LihatMobil extends Fragment {
         });
         queue.add(stringRequest);
     }
+
 }

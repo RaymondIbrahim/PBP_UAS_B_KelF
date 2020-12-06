@@ -1,6 +1,7 @@
 package com.tubesb.tubespbp;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,15 +28,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.tubesb.tubespbp.BackEndSewa.ViewsSewa;
 import com.tubesb.tubespbp.FrontEnd.LihatMobil;
 import com.tubesb.tubespbp.FrontEnd.ShowProfileActivity;
+import com.tubesb.tubespbp.api.ApiClient;
+import com.tubesb.tubespbp.api.ApiInterface;
+import com.tubesb.tubespbp.api.UserResponse;
 import com.tubesb.tubespbp.model.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DashboardActivity extends AppCompatActivity {
 
     public RelativeLayout btnLihat, btnSewa, btnAbout, btnProfil;
-    String userID, email;
+    String userID, email, nama;
     Button btnlogout;
+    TextView tvNama;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
@@ -45,19 +55,17 @@ public class DashboardActivity extends AppCompatActivity {
     private User userFromDB, user;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction, transaction;
-
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        TextView nama = findViewById(R.id.tvNama);
+        tvNama = findViewById(R.id.tvNama);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.show();
 
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("MyUser", Context.MODE_PRIVATE);
-
-        String namast = sp.getString("nama", "");
-        nama.setText(namast);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
@@ -73,21 +81,8 @@ public class DashboardActivity extends AppCompatActivity {
         btnProfil = (RelativeLayout) findViewById(R.id.profil);
         btnlogout = (Button) findViewById(R.id.btn_logout);
 
-        //Pass Email dari Login
-        String email = getIntent().getStringExtra("email");
-        Toast.makeText(DashboardActivity.this, email, Toast.LENGTH_SHORT).show();
-
-        databaseReference.child(userID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                nama.setText(dataSnapshot.child("nama").getValue().toString());
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        email = getIntent().getStringExtra("email");
+        loadUserById(email);
 
         btnLihat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,9 +102,15 @@ public class DashboardActivity extends AppCompatActivity {
         btnSewa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), BookingActivity.class);
-                intent.putExtra("email", email);
-                startActivity(intent);
+                Bundle bundle = new Bundle();
+                bundle.putString("email", email );
+                ViewsSewa fragInfo = new ViewsSewa();
+                fragInfo.setArguments(bundle);
+                fragmentManager = getSupportFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction
+                        .replace(R.id.mainFragment,fragInfo)
+                        .commit();
             }
         });
 
@@ -176,6 +177,29 @@ public class DashboardActivity extends AppCompatActivity {
         fragmentTransaction
                 .replace(R.id.mainFragment,fragment)
                 .commit();
+    }
+
+    private void loadUserById(String email) {
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<UserResponse> add = apiService.getUserByEmail(email, "data");
+
+        add.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+
+                nama = response.body().getUsers().get(0).getNama();
+
+                tvNama.setText(nama);
+
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                Toast.makeText(com.tubesb.tubespbp.DashboardActivity.this, "Kesalahan Jaringan", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+            }
+        });
     }
 
 

@@ -195,7 +195,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             selectedCarmenFeature.placeName()), Toast.LENGTH_SHORT).show();
             String alamat = String.format(getString(R.string.selected_place_info),
                     selectedCarmenFeature.placeName());
-            Intent intent= new Intent(this ,MainActivity.class);
+            Intent intent= new Intent(this ,RegisterActivity.class);
             intent.putExtra("alamat",alamat);
             startActivity(intent);
 

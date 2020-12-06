@@ -1,4 +1,4 @@
-package com.tubesb.tubespbp.UnitTest;
+package com.tubesb.tubespbp.UnitTestingRegister;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,15 +13,15 @@ public class ActivityUtil {
         this.context = context;
     }
     public void startMainActivity() {
-        context.startActivity(new Intent(context, LoginActivity.class));
+        context.startActivity(new Intent(context, RegisterActivity.class));
     }
     public void startUserProfile(UserDAO user) {
         Intent i = new Intent(context, ShowProfileActivity.class);
-        i.putExtra("id",user.getId());
+        i.putExtra("email",user.getEmail());
+        i.putExtra("password",user.getPassword());
         i.putExtra("name",user.getNama());
         i.putExtra("alamat",user.getAlamat());
         i.putExtra("noTelp",user.getNoTelp());
-        i.putExtra("image",user.getImage());
         context.startActivity(i);
     }
 

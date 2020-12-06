@@ -105,8 +105,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                 //Mendapatkan string dari MapActivity untuk alamat
                 Intent intent = getIntent();
-                address = intent.getStringExtra("alamat");
-                alamatText.setText(address);
+                alamat = intent.getStringExtra("alamat");
+                alamatText.setText(alamat);
 
             }
         });
@@ -141,6 +141,9 @@ public class RegisterActivity extends AppCompatActivity {
                     etAlamat.requestFocus();
                 } else if(etTelp.getText().toString().isEmpty()) {
                     etTelp.setError("No Telepon is required!");
+                    etTelp.requestFocus();
+                } else if(etTelp.length() <12) {
+                    etTelp.setError("No Telepon no less than 12 digits");
                     etTelp.requestFocus();
                 } else {
                     email = etEmail.getText().toString().trim();

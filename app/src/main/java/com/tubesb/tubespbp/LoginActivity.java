@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else if(etPassword.length() <6) {
                     etPassword.setError("Password must be more than 6 characters");
                     etPassword.requestFocus();
-                } else if(etEmail.getText().toString().equalsIgnoreCase("admin@gmail.com") && etPassword.getText().toString().equalsIgnoreCase("admin123")){
+                } else if(etEmail.getText().toString().equalsIgnoreCase("admin123@gmail.com") && etPassword.getText().toString().equalsIgnoreCase("admin123")){
                     Toast.makeText(LoginActivity.this, "Selamat datang admin!", Toast.LENGTH_LONG).show();
                     loadFragment(new ViewsMobil());
                 }else {
@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(com.tubesb.tubespbp.LoginActivity.this, "Your account is not registered yet", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(com.tubesb.tubespbp.LoginActivity.this, "You have not registered or the password does not match", Toast.LENGTH_SHORT).show();
                 }
 
                 progressDialog.dismiss();
@@ -124,4 +124,5 @@ public class LoginActivity extends AppCompatActivity {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
 }

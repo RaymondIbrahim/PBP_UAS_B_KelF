@@ -31,8 +31,6 @@ public class ShowProfileActivity extends AppCompatActivity {
     private String email, sNama, sAlamat, sEmail, sTelp, id;
     private ProgressDialog progressDialog;
     private Button btnLogout, btnEdit;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +40,6 @@ public class ShowProfileActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.show();
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
         twNama = findViewById(R.id.twNama);
         twAlamat = findViewById(R.id.twAlamat);
         twEmail = findViewById(R.id.twEmail);
