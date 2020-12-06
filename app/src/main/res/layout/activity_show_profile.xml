@@ -16,6 +16,22 @@
         android:text="MY PROFILE"
         android:textStyle="bold"/>
 
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="95dp"
+        android:src="@drawable/ic_baseline_account_box_24" />
+
+    <Button
+        android:id="@+id/btn_ganti_foto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginRight="80dp"
+        android:layout_marginBottom="10dp"
+        android:text="Ganti Foto" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
